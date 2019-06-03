@@ -1,0 +1,67 @@
+# ==============================================================================
+# An example project file for pipeline analysis
+# ==============================================================================
+
+# Name of the project and last modified date of this file
+# -------------------------------------------------------
+project metadata:
+  name: pipeline_example
+  timestamp: 2019-05-30T16:39:20-04:00
+
+# Basic parameters
+# ----------------
+basic settings:
+  working directory: "./"
+  rupture points: "./none.shp"
+  leak profile:
+    - end time: 1800
+      rate: 0.5
+    - end time: 12800
+      rate: 0.1
+  simulation time: 480
+  output time spacing: 2
+  topography file: from 3DEP server
+  hydrologic files: from NHD server
+  use topo res as grid res: False
+  finest grid resolutions:
+    x: 1
+    y: 1
+  computaional domain:
+    top: 1000
+    bottom: 1000
+    left: 1000
+    right: 1000
+
+# Settings for fluid properties and models
+# ----------------------------------------
+fluid settings:
+  ref dynamic viscosity: 332
+  ref temperature: 15
+  ambient temperature: 25
+  density: 926.6
+  evaporation model: 
+    model: Fingas1996 Log Law
+    coefficients:
+      - 1.38
+      - 0.045
+
+# Darcy-Weisbach friction model
+# -----------------------------
+darcy-weisbach settings:
+  coefficient model: three-regime model
+  surface roughness: 0.1
+
+# Miscellaneous
+# -------------
+misc:
+  skip if case exist: True
+
+# Advanced parameters for numerical methods
+# -----------------------------------------
+advanced numerical parameters:
+  initial dt: 0
+  max dt: 4
+  desired cfl: 0.9
+  max cfl: 0.95
+  total AMR levels: 2
+  AMR refinement ratio: 4
