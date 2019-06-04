@@ -1,5 +1,6 @@
 # ==============================================================================
 # An example project file for pipeline analysis
+# See *project_setting_instruction.md* for explaination.
 # ==============================================================================
 
 # Name of the project and last modified date of this file
@@ -48,7 +49,7 @@ fluid settings:
 # Darcy-Weisbach friction model
 # -----------------------------
 darcy-weisbach settings:
-  coefficient model: three-regime model
+  coefficient model: Three-regime model
   surface roughness: 0.1
 
 # Miscellaneous
