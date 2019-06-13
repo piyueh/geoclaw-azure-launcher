@@ -15,7 +15,6 @@ import functools
 import tkinter
 import tkinter.filedialog
 import ipywidgets
-import traitlets
 import IPython.display
 
 
@@ -24,16 +23,16 @@ def azure_batch_account_name():
     """
 
     batch_account_name_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
+        layout={"flex": "1 1 35%"},
         value="Azure Batch account name")
 
     batch_account_name_text = ipywidgets.Password(
         placeholder="Azure Batch account name",
-        layout=ipywidgets.Layout(width="65%"))
+        layout={"flex": "1 1 65%"})
 
     batch_account_name_box = ipywidgets.HBox(
         children=[batch_account_name_label, batch_account_name_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return batch_account_name_box
 
@@ -42,7 +41,7 @@ def azure_batch_account_key():
     """
 
     batch_account_key_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
+        layout={"flex": "1 1 35%"},
         value="Azure Batch account key")
 
     batch_account_key_text = ipywidgets.Password(
@@ -52,7 +51,7 @@ def azure_batch_account_key():
 
     batch_account_key_box = ipywidgets.HBox(
         children=[batch_account_key_label, batch_account_key_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return batch_account_key_box
 
@@ -61,16 +60,16 @@ def azure_batch_account_url():
     """
 
     batch_account_URL_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
+        layout={"flex": "1 1 35%"},
         value="Azure Batch account URL")
 
     batch_account_URL_text = ipywidgets.Password(
         placeholder="Azure Batch account URL",
-        layout=ipywidgets.Layout(width="65%"))
+        layout={"flex": "1 1 65%"})
 
     batch_account_URL_box = ipywidgets.HBox(
         children=[batch_account_URL_label, batch_account_URL_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return batch_account_URL_box
 
@@ -78,16 +77,16 @@ def azure_storage_account_name():
     """Return a HBox for asking Azure Storage account name.
     """
     storage_account_name_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
+        layout={"flex": "1 1 35%"},
         value="Azure Storage account name")
 
     storage_account_name_text = ipywidgets.Password(
         placeholder="Azure Storage account name",
-        layout=ipywidgets.Layout(width="65%"))
+        layout={"flex": "1 1 65%"})
 
     storage_account_name_box = ipywidgets.HBox(
         children=[storage_account_name_label, storage_account_name_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return storage_account_name_box
 
@@ -96,17 +95,17 @@ def azure_storage_account_key():
     """
 
     storage_account_key_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
+        layout={"flex": "1 1 35%"},
         value="Azure Storage account key")
 
     storage_account_key_text = ipywidgets.Password(
         value="",
         placeholder="Azure Storage account key",
-        layout=ipywidgets.Layout(width="65%"))
+        layout={"flex": "1 1 65%"})
 
     storage_account_key_box = ipywidgets.HBox(
         children=[storage_account_key_label, storage_account_key_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return storage_account_key_box
 
@@ -115,15 +114,15 @@ def passcode():
     """
 
     passcode_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"), value="Passcode")
+        layout={"flex": "1 1 35%"}, value="Passcode")
 
     passcode_text = ipywidgets.Password(
         value="",
-        placeholder="Passcode", layout=ipywidgets.Layout(width="65%"))
+        placeholder="Passcode", layout={"flex": "1 1 65%"})
 
     passcode_box = ipywidgets.HBox(
         children=[passcode_label, passcode_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return passcode_box
 
@@ -132,15 +131,15 @@ def confirm_passcode():
     """
 
     confirm_passcode_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"), value="Confirm passcode")
+        layout={"flex": "1 1 35%"}, value="Confirm passcode")
 
     confirm_passcode_text = ipywidgets.Password(
         value="",
-        placeholder="Confirm passcode", layout=ipywidgets.Layout(width="65%"))
+        placeholder="Confirm passcode", layout={"flex": "1 1 65%"})
 
     confirm_passcode_box = ipywidgets.HBox(
         children=[confirm_passcode_label, confirm_passcode_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return confirm_passcode_box
 
@@ -149,27 +148,26 @@ def dir_selection():
     """
 
     dir_select_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
-        value="The directory where the encrypted file will be output to")
+        layout={"flex": "1 1 35%"},
+        value="Output destination folder")
 
     dir_select_label.add_class("label-wrapped")
 
     dir_select_button = ipywidgets.Button(
-        value="", description="Click to select", disable=False, button_style="",
+        description="Click to select",
         tooltip="The directory where the encrypted file will be output to.",
-        layout=ipywidgets.Layout(width="20%"))
+        layout={"flex": "1 1 20%"})
 
     dir_path_text = ipywidgets.Text(
-        disable=False, placeholder="The path to the output directory",
-        layout=ipywidgets.Layout(width="45%"),
-        description="")
+        placeholder="The path to the output directory",
+        layout={"flex": "1 1 45%"})
 
     dir_select_button.on_click(
         functools.partial(dir_select_event, text=dir_path_text))
 
     dir_select_box = ipywidgets.HBox(
         children=[dir_select_label, dir_select_button, dir_path_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return dir_select_box
 
@@ -178,19 +176,18 @@ def output_filename():
     """
 
     file_name_label = ipywidgets.Label(
-        layout=ipywidgets.Layout(width="25%"),
-        value="The name of the resulting encrypted credential file")
+        layout={"flex": "1 1 35%"},
+        value="Output file name")
 
     file_name_label.add_class("label-wrapped")
 
     file_name_text = ipywidgets.Text(
-        disable=False, layout=ipywidgets.Layout(width="65%"),
-        placeholder="The name of the resulting encrypted credential file",
-        description="")
+        layout={"flex": "1 1 65%"},
+        placeholder="The name of the resulting encrypted credential file")
 
     file_name_box = ipywidgets.HBox(
         children=[file_name_label, file_name_text],
-        layout=ipywidgets.Layout(width="90%"))
+        layout=ipywidgets.Layout(width="100%"))
 
     return file_name_box
 
@@ -202,6 +199,8 @@ def run_button():
         value="", description="Run", disable=False, button_style="",
         tooltip="Execute the tool",
         layout=ipywidgets.Layout(width="30%"))
+
+    run_button.style.font_weight = "bold"
 
     return run_button
 
@@ -226,7 +225,7 @@ def display_tool_gui():
     button = run_button()
 
     # an extra output message widget
-    msg = ipywidgets.Output(layout=ipywidgets.Layout(width="90%"))
+    msg = ipywidgets.Output(layout=ipywidgets.Layout(width="100%"))
 
     # the big box
     box = ipywidgets.VBox(

@@ -34,11 +34,6 @@
     line-height: 28px;
 }
 
-.label-wrapped {
-    white-space: normal;
-    line-height: 100%;
-}
-
 div.cell { /* set cell width */
     width: 90%;
 }
