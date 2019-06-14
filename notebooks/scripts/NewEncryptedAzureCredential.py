@@ -12,199 +12,74 @@ Underlying script to create widgets for NewEncryptedAzureCredential.
 import os
 import sys
 import functools
-import tkinter
-import tkinter.filedialog
 import ipywidgets
 import IPython.display
 
+# make this directory searchable for Python modules
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-def azure_batch_account_name():
-    """Return a HBox for asking Azure Batch account name.
+if script_dir in sys.path:
+    sys.path.remove(script_dir)
+
+sys.path.insert(0, script_dir)
+
+# import common from this "scripts" folder
+import common
+
+
+def azure_credential_request_box():
+    """Create a box for asking Azure credential info.
     """
 
-    batch_account_name_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Azure Batch account name")
+    batch_name = common.label_password_pair(
+        "Azure Batch account name", "Azure Batch account name")
 
-    batch_account_name_text = ipywidgets.Password(
-        placeholder="Azure Batch account name",
-        layout={"flex": "1 1 65%"})
+    batch_key = common.label_password_pair(
+        "Azure Batch account key", "Azure Batch account key")
 
-    batch_account_name_box = ipywidgets.HBox(
-        children=[batch_account_name_label, batch_account_name_text],
-        layout=ipywidgets.Layout(width="100%"))
+    batch_url = common.label_password_pair(
+        "Azure Batch account URL", "Azure Batch account URL")
 
-    return batch_account_name_box
+    storage_name = common.label_password_pair(
+        "Azure Storage account name", "Azure Storage account name")
 
-def azure_batch_account_key():
-    """Return a HBox for asking Azure Batch account key.
+    storage_key = common.label_password_pair(
+        "Azure Storage account key", "Azure Storage account key")
+
+    return ipywidgets.VBox(
+        children=[batch_name, batch_key, batch_url, storage_name, storage_key],
+        layout={"width": "100%", "flex": "1 1 auto"})
+
+def new_passcode_request_box():
+    """Create a box for asking encryption passcode and confirmation.
     """
 
-    batch_account_key_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Azure Batch account key")
+    passcode = common.label_password_pair("Passcode", "Passcode")
 
-    batch_account_key_text = ipywidgets.Password(
-        value="",
-        placeholder="Azure Batch account key",
-        layout=ipywidgets.Layout(width="65%"))
+    confirm_passcode = common.label_password_pair(
+        "Confirm passcode", "Confirm passcode")
 
-    batch_account_key_box = ipywidgets.HBox(
-        children=[batch_account_key_label, batch_account_key_text],
-        layout=ipywidgets.Layout(width="100%"))
+    return ipywidgets.VBox(
+        children=[passcode, confirm_passcode],
+        layout={"width": "100%", "flex": "1 1 auto"})
 
-    return batch_account_key_box
-
-def azure_batch_account_url():
-    """Return a HBox for asking Azure Batch account URL.
+def output_info_request_box():
+    """Create a VBox for asking for output path and filename.
     """
 
-    batch_account_URL_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Azure Batch account URL")
+    output_dir = common.dir_or_file_selector_pair(
+        "dir", "Output destination folder",
+        "The directory where the encrypted file will be output to.",
+        "The path to the output directory")
 
-    batch_account_URL_text = ipywidgets.Password(
-        placeholder="Azure Batch account URL",
-        layout={"flex": "1 1 65%"})
+    output_filename = common.label_text_pair(
+        "Output file name", "The name of the resulting encrypted credential file")
 
-    batch_account_URL_box = ipywidgets.HBox(
-        children=[batch_account_URL_label, batch_account_URL_text],
-        layout=ipywidgets.Layout(width="100%"))
+    return ipywidgets.VBox(
+        children=[output_dir, output_filename],
+        layout={"width": "100%", "flex": "1 1 auto"})
 
-    return batch_account_URL_box
-
-def azure_storage_account_name():
-    """Return a HBox for asking Azure Storage account name.
-    """
-    storage_account_name_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Azure Storage account name")
-
-    storage_account_name_text = ipywidgets.Password(
-        placeholder="Azure Storage account name",
-        layout={"flex": "1 1 65%"})
-
-    storage_account_name_box = ipywidgets.HBox(
-        children=[storage_account_name_label, storage_account_name_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return storage_account_name_box
-
-def azure_storage_account_key():
-    """Return a HBox for asking Azure Storage account key.
-    """
-
-    storage_account_key_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Azure Storage account key")
-
-    storage_account_key_text = ipywidgets.Password(
-        value="",
-        placeholder="Azure Storage account key",
-        layout={"flex": "1 1 65%"})
-
-    storage_account_key_box = ipywidgets.HBox(
-        children=[storage_account_key_label, storage_account_key_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return storage_account_key_box
-
-def passcode():
-    """Asking for a passcode to encrypt the credential.
-    """
-
-    passcode_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"}, value="Passcode")
-
-    passcode_text = ipywidgets.Password(
-        value="",
-        placeholder="Passcode", layout={"flex": "1 1 65%"})
-
-    passcode_box = ipywidgets.HBox(
-        children=[passcode_label, passcode_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return passcode_box
-
-def confirm_passcode():
-    """Asking for a confirmation to the passcode.
-    """
-
-    confirm_passcode_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"}, value="Confirm passcode")
-
-    confirm_passcode_text = ipywidgets.Password(
-        value="",
-        placeholder="Confirm passcode", layout={"flex": "1 1 65%"})
-
-    confirm_passcode_box = ipywidgets.HBox(
-        children=[confirm_passcode_label, confirm_passcode_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return confirm_passcode_box
-
-def dir_selection():
-    """The widget box asking for an output directory.
-    """
-
-    dir_select_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Output destination folder")
-
-    dir_select_label.add_class("label-wrapped")
-
-    dir_select_button = ipywidgets.Button(
-        description="Click to select",
-        tooltip="The directory where the encrypted file will be output to.",
-        layout={"flex": "1 1 20%"})
-
-    dir_path_text = ipywidgets.Text(
-        placeholder="The path to the output directory",
-        layout={"flex": "1 1 45%"})
-
-    dir_select_button.on_click(
-        functools.partial(dir_select_event, text=dir_path_text))
-
-    dir_select_box = ipywidgets.HBox(
-        children=[dir_select_label, dir_select_button, dir_path_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return dir_select_box
-
-def output_filename():
-    """The name of the output encrypted file.
-    """
-
-    file_name_label = ipywidgets.Label(
-        layout={"flex": "1 1 35%"},
-        value="Output file name")
-
-    file_name_label.add_class("label-wrapped")
-
-    file_name_text = ipywidgets.Text(
-        layout={"flex": "1 1 65%"},
-        placeholder="The name of the resulting encrypted credential file")
-
-    file_name_box = ipywidgets.HBox(
-        children=[file_name_label, file_name_text],
-        layout=ipywidgets.Layout(width="100%"))
-
-    return file_name_box
-
-def run_button():
-    """A button to run the tool.
-    """
-
-    run_button = ipywidgets.Button(
-        value="", description="Run", disable=False, button_style="",
-        tooltip="Execute the tool",
-        layout=ipywidgets.Layout(width="30%"))
-
-    run_button.style.font_weight = "bold"
-
-    return run_button
-
-def display_tool_gui():
+def display_gui():
     """Display all widgets with a big VBox.
     """
 
@@ -212,30 +87,41 @@ def display_tool_gui():
     css = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css")
     IPython.display.display(IPython.display.HTML(open(css, 'r').read()))
 
-    # create widgets
-    batch_name = azure_batch_account_name()
-    batch_key = azure_batch_account_key()
-    batch_url = azure_batch_account_url()
-    storage_name = azure_storage_account_name()
-    storage_key = azure_storage_account_key()
-    passcode_1 = passcode()
-    passcode_2 = confirm_passcode()
-    wd = dir_selection()
-    fn = output_filename()
-    button = run_button()
+    # create and assemble widgets
+    azure_credential_box = azure_credential_request_box()
+    passcode_box = new_passcode_request_box()
+    output_info_box = output_info_request_box()
+
+    # the "Run" button
+    run_button = common.run_button()
 
     # an extra output message widget
-    msg = ipywidgets.Output(layout=ipywidgets.Layout(width="100%"))
+    msg = ipywidgets.Output(layout={"width": "100%"})
 
     # the big box
     box = ipywidgets.VBox(
-        children=[batch_name, batch_key, batch_url,
-                  storage_name, storage_key,
-                  passcode_1, passcode_2, wd, fn, button, msg],
-        layout=ipywidgets.Layout(width="100%"))
+        children=[
+            azure_credential_box, passcode_box, output_info_box,
+            run_button, msg],
+        layout={"width": "100%", "flex": "1 1 auto"})
 
-    # bind button click event
-    button.on_click(functools.partial(run, big_box=box))
+    # reference to the real widgets storing values
+    box.real_widgets = {
+        "batch_name": azure_credential_box.children[0].children[1],
+        "batch_key": azure_credential_box.children[1].children[1],
+        "batch_url": azure_credential_box.children[2].children[1],
+        "storage_name": azure_credential_box.children[3].children[1],
+        "storage_key": azure_credential_box.children[4].children[1],
+        "passcode1": passcode_box.children[0].children[1],
+        "passcode2": passcode_box.children[1].children[1],
+        "wd": output_info_box.children[0].children[2],
+        "fn": output_info_box.children[1].children[1],
+        "msg": msg
+    }
+
+    # register the callback event when clicking the "Run" button
+    run_button.on_click(functools.partial(
+        common.run, big_box=box, true_run=run_real))
 
     # display in the notebook
     IPython.display.display(box)
@@ -253,24 +139,6 @@ def check_passcode(passcode1, passcode2):
     if passcode1 != passcode2:
         raise ValueError("The first passcode does not match the second one.")
 
-def run(button, big_box):
-    """Event when an user click the "Run" button.
-
-    Args:
-        button: A ipywidgets.Button object.
-
-        big_box: the box containing this tool
-    """
-
-    # capture stdout and stderr in the Output widget
-    with big_box.children[-1]:
-
-        # clean the message in the output widget
-        IPython.display.clear_output()
-
-        # the real/underlying event
-        run_real(big_box)
-
 def run_real(big_box):
     """The real work when an user click run.
 
@@ -279,7 +147,7 @@ def run_real(big_box):
     """
 
     # tricky part: import helper module using relative path to this file
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root = os.path.dirname(os.path.dirname(script_dir))
 
     if root in sys.path:
         sys.path.remove(root)
@@ -287,47 +155,29 @@ def run_real(big_box):
     sys.path.insert(0, root)
     import helpers.azuretools
 
+    # reference to the dictionary of underlying real widgets
+    widgets = big_box.real_widgets
+
     # check passcodes
     print("Checking passcodes.")
 
-    check_passcode(
-        big_box.children[5].children[1].value,
-        big_box.children[6].children[1].value)
+    check_passcode(widgets["passcode1"].value, widgets["passcode2"].value)
 
     # UserCredential object
     print("Creating an UserCredential instance.")
 
     UC = helpers.azuretools.UserCredential(
-        big_box.children[0].children[1].value,
-        big_box.children[1].children[1].value,
-        big_box.children[2].children[1].value,
-        big_box.children[3].children[1].value,
-        big_box.children[4].children[1].value)
+        widgets["batch_name"].value, widgets["batch_url"].value,
+        widgets["batch_key"].value, widgets["storage_name"].value,
+        widgets["storage_key"].value)
 
     # write to file
     filepath = os.path.join(
-        big_box.children[7].children[2].value,
-        big_box.children[8].children[1].value)
+        widgets["wd"].value, widgets["fn"].value)
 
     print("Writing an encrypted file to\n\t{}.".format(filepath))
 
-    UC.write_encrypted(big_box.children[5].children[1].value, filepath)
+    UC.write_encrypted(widgets["passcode1"].value, filepath)
 
     # output success message to the output widget
     print("\nSuccess!\n")
-
-def dir_select_event(button, text):
-    """Pop up a tk window for folder selection.
-
-    Args:
-        button: A ipywidgets.Button object.
-
-        text: A ipywidgets.Text object.
-    """
-
-    tkinter.Tk().withdraw() # Close the root window
-    dir_path = tkinter.filedialog.askdirectory()
-
-    # if users indeed select a folder, update the value of the Text object
-    if isinstance(dir_path, str):
-        text.value = dir_path
