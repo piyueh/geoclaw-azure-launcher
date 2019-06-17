@@ -149,3 +149,44 @@ def dir_or_file_selector_pair(
         raise ValueError("dir_or_file should be either \"dir\" or \"file\".")
 
     return ipywidgets.HBox(children=[label, button, text], layout={"width": "100%"})
+
+def label_boundedinttext_pair(label_text, default_value, minimum, maximum, step):
+    """A helper to create a HBox with a Label and a BoundedIntText widgets.
+
+    Args:
+        label_text: the text content in the label.
+        default_value: the default value in the BoundedIntText.
+        minimum: the minimum value allowed in the BoundedIntText.
+        maximum: the maximum value allowed in the BoundedIntText.
+        step: the size of increment used in the BoundedIntText.
+    """
+
+    label = ipywidgets.Label(
+        value=label_text, layout={"flex": "1 1 35%", "align-self": "flex-start"})
+
+    boundedinttext = ipywidgets.BoundedIntText(
+        value=default_value, min=minimum, max=maximum, step=step,
+        layout={"flex": "1 1 65%", "align-self": "flex-end"})
+
+    return ipywidgets.HBox(
+        children=[label, boundedinttext],
+        layout={"width": "100%", "flex": "1 1 auto"})
+
+def label_dropdown_pair(label_text, default_value, options):
+    """A helper to create a HBox with a Label and a Dropdown widgets.
+
+    Args:
+        label_text: the text content in the label.
+        default_value: the default value in the Dropdown.
+        options: the available options in the Dropdown.
+    """
+
+    label = ipywidgets.Label(
+        value=label_text, layout={"flex": "1 1 35%", "align-self": "flex-start"})
+
+    dropdown = ipywidgets.Dropdown(
+        value=default_value, options=options,
+        layout={"flex": "2 1 65%", "align-self": "flex-end"})
+
+    return ipywidgets.HBox(
+        children=[label, dropdown], layout=ipywidgets.Layout(width="100%"))
