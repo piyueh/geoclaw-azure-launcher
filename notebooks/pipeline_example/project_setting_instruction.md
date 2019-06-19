@@ -38,11 +38,14 @@ just for users to manage projects.
 1. **working directory**: a string
 
     Path to the working directory where all simulation cases will be located
-    in.
+    in. If a relative path is provided, then it will be relative to the folder
+    that has the YAML file.
 
 2. **rupture points**: a string
 
     Path to a Esri shapefile which has the information of the ruptured points.
+    If a relative path is provided, then it will be relative to the folder that
+    has the YAML file.
 
 3. **leak profile**: a list of dictionaries / a YAML sub-node
 
@@ -86,7 +89,9 @@ just for users to manage projects.
     Either "from 3DEP server" or a path to a topography file. "from 3DEP
     server" means the solver will try to download topography from 3DEP map
     server at runtime, so users don't have to prepare the topography before
-    running simulations.
+    running simulations. The file format is Esri ASCII raster. If a relative 
+    path is provided, then it will be relative to the folder that has the YAML 
+    file.
 
 7. **hydrologic files**: "from NHD server" or a list of strings
 
@@ -96,6 +101,9 @@ just for users to manage projects.
     Note for hydrological data, the files should be raster files in Esri ASCII
     format, not the shapefile format. Also, the solver accepts multiple
     hydrological files, so users must use a list, rather than a single string.
+    If a relative path is provided, then it will be relative to the folder that 
+    has the YAML file.
+
 
 8. **use topo res as grid res**: a boolean
 

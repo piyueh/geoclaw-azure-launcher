@@ -79,7 +79,6 @@ def credential_provider_box():
         children=[credential_option_box, accordion],
         layout={"width": "100%", "flex": "1 1 auto"})
 
-
 def display_gui():
     """Display the GUI interface of this tool.
     """
@@ -103,7 +102,12 @@ def display_gui():
 
     credential_option_box = credential_provider_box()
 
-    ignore_exist_chk_box = ipywidgets.Checkbox(
+    recreate_local_case_chk_box = ipywidgets.Checkbox(
+        value=False, indent=False,
+        layout={"width": "90%", "flex": "1 1 auto", "align-self": "left"},
+        description="Re-create a case if it already exists local machine.")
+
+    ignore_exist_azure_chk_box = ipywidgets.Checkbox(
         value=True, indent=False,
         layout={"width": "90%", "flex": "1 1 auto", "align-self": "left"},
         description="Do not re-submit a case if it already exists on Azure.")
@@ -120,8 +124,25 @@ def display_gui():
     # the big box
     box = ipywidgets.VBox(
         children=[yaml_selector_box, max_vm_nodes_box, node_type_box,
-                  credential_option_box, ignore_exist_chk_box, run_button, msg],
+                  credential_option_box, ignore_exist_azure_chk_box,
+                  recreate_local_case_chk_box, run_button, msg],
         layout={"width": "100%", "flex": "1 1 auto"})
+
+    # references to real widgets that hold data
+    box.real_widgets = {
+        "yaml_path": yaml_selector_box.children[2],
+        "max_nodes": max_vm_nodes_box.children[1],
+        "node_type": node_type_box.children[1],
+        "cred_type": credential_option_box.children[0].children[1],
+        "cred": credential_option_box.children[1].real_widgets,
+        "recreate_local_case": recreate_local_case_chk_box,
+        "ignore_exist_azure": ignore_exist_azure_chk_box,
+        "msg": msg
+    }
+
+    # register the callback event when clicking the "Run" button
+    run_button.on_click(functools.partial(
+        common.run, big_box=box, true_run=run_real))
 
     # display in the notebook
     IPython.display.display(box)
@@ -178,3 +199,15 @@ def credential_option_change_event(changes, accordion):
         widgets["file"]["passcode"].value = ""
         widgets["file"]["passcode"].placeholder = \
             widgets["file"]["passcode"].placeholder_backup
+
+def run_real(big_box):
+    """The underlying/true run event when clicking the "Run" button.
+
+    Args:
+        big_box: the final ipywidgets Box object of this tool.
+    """
+
+    widgets = big_box.real_widgets
+
+    common.prepare_geoclaw_cases(
+        widgets["yaml_path"].value, widgets["recreate_local_case"].value)
