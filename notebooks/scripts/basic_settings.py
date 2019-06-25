@@ -53,6 +53,7 @@ def create_basic_setting_box():
         [{"value": 1, "min": 1, "max": 999999, "step": 1},
          {"value": 0, "min": 0, "max": 999999, "step": 0.01}])
     box.data["leak_profile"] = children["leak_profile"].children[1].children[1]
+    box.data["leak_profile"].layout.padding = "1px 1px 5px 10px"
 
     # basic settings: simulation time
     children["simulation_time"] = common.label_boundedinttext_pair(
