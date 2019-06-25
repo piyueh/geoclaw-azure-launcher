@@ -131,7 +131,7 @@ just for users to manage projects.
       y: 1
     ```
 
-10. **computational domain**: a Python dictionary or a YAML sub-node
+10. **relative computational domain**: a Python dictionary or a YAML sub-node
 
     The distance between a rupture point to the four boundaries of the
     computational domain. Use `top` (north), `bottom` (south), `left` (west),

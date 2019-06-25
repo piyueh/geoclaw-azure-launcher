@@ -27,7 +27,7 @@ basic settings:
   finest grid resolutions:
     x: 1
     y: 1
-  computaional domain:
+  relative computaional domain:
     top: 1000
     bottom: 1000
     left: 1000
