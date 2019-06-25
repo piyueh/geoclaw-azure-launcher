@@ -64,7 +64,7 @@ def dir_selector_event(button, text):
     if isinstance(dir_path, str):
         text.value = dir_path
 
-def file_selector_event(button, text):
+def file_selector_event(button, text, multiple=False):
     """Underlying event when a user click yaml selector button.
 
     Args:
@@ -73,9 +73,19 @@ def file_selector_event(button, text):
     """
 
     tkinter.Tk().withdraw() # Close the root window
-    file_path = tkinter.filedialog.askopenfilename()
 
-    # if users indeed select a folder, update the value of the Text object
+    if multiple:
+        file_path = tkinter.filedialog.askopenfilenames()
+
+        if len(file_path) > 0:
+            temp = ""
+            for p in file_path:
+                temp += ";{}".format(p)
+            file_path = temp.lstrip(";")
+    else:
+        file_path = tkinter.filedialog.askopenfilename()
+
+    # if users indeed select a file, update the value of the Text object
     if isinstance(file_path, str):
         text.value = file_path
 
@@ -122,7 +132,8 @@ def label_password_pair(label_text, placeholder_text):
     return box
 
 def dir_or_file_selector_pair(
-        dir_or_file, label_text, button_tooltip, input_placeholder):
+        dir_or_file, label_text, button_tooltip, input_placeholder,
+        multiple=False):
     """Create a HBox asking the paht to a directory or a file.
 
     Args:
@@ -146,7 +157,8 @@ def dir_or_file_selector_pair(
     if dir_or_file == "dir":
         button.on_click(functools.partial(dir_selector_event, text=text))
     elif dir_or_file == "file":
-        button.on_click(functools.partial(file_selector_event, text=text))
+        button.on_click(functools.partial(
+            file_selector_event, text=text, multiple=multiple))
     else:
         raise ValueError("dir_or_file should be either \"dir\" or \"file\".")
 
@@ -203,10 +215,11 @@ def relative_to_a_file(basefile, path):
 
     return path
 
-def get_point_info(shapefilepath):
+def get_point_info(workdir, shapefilepath):
     """Get the information of the rupture points from a shapefile.
 
     Args:
+        workdir: prefix of the simulation case directory of the points.
         shapefilepath: the path to the shapefile
 
     Return:
@@ -241,7 +254,9 @@ def get_point_info(shapefilepath):
             feature['properties']['LINE_ID'], feature['properties']['ROUTE_ID'],
             feature['properties']['POINT_ID'])
 
-        data.append({"xy": xy, "casename": casename})
+        dirname = os.path.join(workdir, casename)
+
+        data.append({"xy": xy, "casename": casename, "dirname": dirname})
 
     shapefile.close()
 
@@ -380,7 +395,7 @@ def prepare_geoclaw_cases(yamlpath, recreate):
 
     # import helper module using relative path to this file
     check_helpers_path()
-    import helpers.azuretools
+    import helpers.arcgistools
 
     # read project YAML file
     with open(yamlpath, 'r') as f:
@@ -388,11 +403,12 @@ def prepare_geoclaw_cases(yamlpath, recreate):
 
     # working directory
     raw_data["basic settings"]["working directory"] = relative_to_a_file(
-        yamlpath, raw_data["basic settings"]["working directory"])
+        yamlpath, raw_data["basic settings"]["working directory"]),
 
     # obtain the xy coordinates and other point information from the shapefile
-    pointdata = get_point_info(relative_to_a_file(
-        yamlpath, raw_data["basic settings"]["rupture points"]))
+    pointdata = get_point_info(
+        raw_data["basic settings"]["working directory"],
+        relative_to_a_file(yamlpath, raw_data["basic settings"]["rupture points"]))
 
     # obtain common settings
     params = obtain_common_yaml_settings(raw_data)
@@ -413,8 +429,7 @@ def prepare_geoclaw_cases(yamlpath, recreate):
     for point in pointdata:
 
         # setup the case folder path and create the folder
-        params["out_dir"] = os.path.join(
-            raw_data["basic settings"]["working directory"], point["casename"])
+        params["out_dir"] = point["dirname"]
 
         if os.path.isdir(params["out_dir"]) and recreate:
             shutil.rmtree(params["out_dir"])
@@ -448,3 +463,197 @@ def prepare_geoclaw_cases(yamlpath, recreate):
     if raw_data["basic settings"]["hydrologic files"] != "from NHD server":
         for raster in hydrorasters:
             raster.close()
+
+    return raw_data, pointdata
+
+def create_and_submit(yamldata, points, userparams):
+    """Create Azure resources and submit simulation cases.
+    """
+
+    # import helper module using relative path to this file
+    check_helpers_path()
+    import helpers.azuretools
+
+    # create an UserCredential instance
+    if userparams["cred_type"] == "Encrypted file":
+        uc = helpers.azuretools.UserCredential()
+        uc.read_encrypted(
+            userparams["cred"]["file"]["passcode"],
+            userparams["cred"]["file"]["filepath"])
+    elif userparams["cred_type"] == "Manual input":
+        uc = helpers.azuretools.UserCredential(
+            userparams["cred"]["manual"]["batch_name"],
+            userparams["cred"]["manual"]["batch_key"],
+            userparams["cred"]["manual"]["batch_url"],
+            userparams["cred"]["manual"]["storage_name"],
+            userparams["cred"]["manual"]["storage_key"])
+    else:
+        raise ValueError
+
+    # create a Mission instance
+    mission = helpers.azuretools.Mission()
+
+    backup = os.path.join(
+        yamldata["basic settings"]["working directory"],
+        "landspill-azure_backup_file.dat")
+
+    if os.path.isfile(backup):
+        mission.init_info_from_file(backup)
+    else:
+        mission.init_info(
+            "landspill-azure", userparams["max_nodes"], userparams["working_dir"],
+            userparams["vm_type"], node_type="dedicated")
+
+    mission.setup_communication(cred=uc)
+    mission.create_resources()
+
+    # loop through each point to add case to Azure task scheduler
+    for point in points:
+
+        if not os.path.isdir(point["dirname"]):
+            if userparams["ignore_local_nonexist"]:
+                continue
+            else:
+                raise FileNotFoundError(
+                    "Can not find case folder {}".format(userparams["dirname"]))
+
+        mission.add_task(
+            point["casename"], point["dirname"], userparams["ignore_azure_exist"])
+
+    # write a backup file to local machine
+    mission.write_info_to_file()
+
+def table_input(row_title, col_titles, col_types, col_params=None):
+    """A table input."""
+
+    if col_params is None:
+        col_params = [{}] * len(col_titles)
+
+    children = []
+
+    # selector for the number of rows
+    children.append(ipywidgets.HBox([
+        ipywidgets.Label(value=row_title, layout={"flex": "1 1 50%"}),
+        ipywidgets.BoundedIntText(value=1, min=1, layout={"flex": "1 1 50%"})]))
+
+    # column title row
+    temp = [[], []]
+    for i, title in enumerate(col_titles):
+        temp[0].append(ipywidgets.Label(value=title, layout={"flex": "1 1 1%"}))
+        temp[1].append(col_types[i](**col_params[i]))
+
+
+    children.append(ipywidgets.VBox([
+        ipywidgets.HBox(temp[0], layout={"flex": "1 1 auto"}),
+        ipywidgets.HBox(temp[1], layout={"flex": "1 1 auto"})]))
+
+    children[-1].layout.border = "0.5px solid grey"
+    children[-1].layout.padding = "1px 1px 1px 1px"
+
+    # register callback
+    children[0].children[1].observe(functools.partial(
+        table_row_change, table_box=children[1]), names="value")
+
+    return ipywidgets.VBox(children, layout={"flex": "1 1 auto"})
+
+def table_row_change(change, table_box):
+    """Change the number of rows in a table."""
+
+    assert change["old"] == (len(table_box.children) - 1), \
+        "{} vs {}".format(change["old"], len(table_box.children))
+
+    # children of a box is a tuple, so copy it to a list
+    # don't forget the first row is the title row, must copy it
+    temp = []
+    for i in range(min(change["new"], change["old"])+1):
+        temp.append(table_box.children[i])
+
+    # if increasing the number of rows
+    if change["new"] > change["old"]:
+        for i in range(change["old"], change["new"]):
+            temp.append(copy(temp[-1]))
+
+    table_box.children = temp
+
+def label_table_input_pair(
+        label_text, row_title, col_titles, col_types, col_params=None):
+    """Label and table input."""
+
+
+    label = ipywidgets.Label(
+        value=label_text, layout={"flex": "1 1 35%", "align-self": "flex-start"})
+
+    table = table_input(row_title, col_titles, col_types, col_params)
+
+    return ipywidgets.HBox(
+        children=[label, table], layout=ipywidgets.Layout(width="100%"))
+
+def copy(widget):
+    """Copy a widget or a Box-derived instance."""
+
+    assert isinstance(widget, ipywidgets.Widget)
+
+    if isinstance(widget, ipywidgets.Box):
+        new = copy_box(widget)
+    else:
+        new = copy_widget(widget)
+
+    return new
+
+def copy_widget(widget):
+    """Copy a widget with the same layout and attributes."""
+
+    # make sure only basic widgets are passed into here
+    assert not isinstance(widget, ipywidgets.Box)
+
+    # a new instance with the same class tyle
+    new = widget.__class__()
+
+    # a list of properties that won't be copied
+    dont_copy = ["layout", "style"]
+    if not isinstance(widget, ipywidgets.Label):
+        dont_copy += ["value"]
+
+    for key, value in widget.get_state().items():
+        if key not in dont_copy:
+            setattr(new, key, value)
+
+    # layout requires special handling
+    new.layout = widget.layout
+
+    # style requires special handling and some widgets don't have style
+    try:
+        new.style = widget.style
+    except AttributeError:
+        pass
+
+    return new
+
+def copy_box(widget):
+    """Copy a Box-derived container widget."""
+
+    # make sure the input is a Box derived instance
+    assert isinstance(widget, ipywidgets.Box)
+
+    # a new instance
+    new = widget.__class__()
+
+    # a list of properties that won't be copied
+    dont_copy = ["layout", "children"]
+
+    # copy properties
+    for key, value in widget.get_state().items():
+        if key not in dont_copy:
+            setattr(new, key, value)
+
+    # layout requires special handling
+    new.layout = widget.layout
+
+    # copy children
+    temp = []
+    for w in widget.children:
+        temp.append(copy(w))
+
+    new.children = temp
+
+    return new
