@@ -186,6 +186,28 @@ def label_boundedinttext_pair(label_text, default_value, minimum, maximum, step)
         children=[label, boundedinttext],
         layout={"width": "100%", "flex": "1 1 auto"})
 
+def label_boundedfloattext_pair(label_text, default_value, minimum, maximum, step):
+    """A helper to create a HBox with a Label and a BoundedFloatText widgets.
+
+    Args:
+        label_text: the text content in the label.
+        default_value: the default value in the BoundedFloatText.
+        minimum: the minimum value allowed in the BoundedFloatText.
+        maximum: the maximum value allowed in the BoundedFloatText.
+        step: the size of increment used in the BoundedFloatText.
+    """
+
+    label = ipywidgets.Label(
+        value=label_text, layout={"flex": "1 1 35%", "align-self": "flex-start"})
+
+    boundedfloattext = ipywidgets.BoundedFloatText(
+        value=default_value, min=minimum, max=maximum, step=step,
+        layout={"flex": "1 1 65%", "align-self": "flex-end"})
+
+    return ipywidgets.HBox(
+        children=[label, boundedfloattext],
+        layout={"width": "100%", "flex": "1 1 auto"})
+
 def label_dropdown_pair(label_text, default_value, options):
     """A helper to create a HBox with a Label and a Dropdown widgets.
 
