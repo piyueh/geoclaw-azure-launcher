@@ -9,13 +9,12 @@
 <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
 <style>
 
-@font-face {
-    font-family: "Computer Modern";
-    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+.bold-face {
+    font-weight: bold;
 }
 
-#notebook_panel { /* main background */
-    background: rgb(245,245,245);
+.centered-text {
+    text-align: center;
 }
 
 .widget-text input[type="password"] {
@@ -32,6 +31,15 @@
     outline: none;
     height: 28px;
     line-height: 28px;
+}
+
+@font-face {
+    font-family: "Computer Modern";
+    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+}
+
+#notebook_panel { /* main background */
+    background: rgb(245,245,245);
 }
 
 div.cell { /* set cell width */
