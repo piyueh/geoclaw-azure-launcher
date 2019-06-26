@@ -25,8 +25,7 @@ sys.path.insert(0, script_dir)
 
 # import common from this "scripts" folder
 import common
-import create_a_new_yaml_file
-import load_a_yaml_file
+import load_create_a_yaml_file
 
 def create_status_box():
     """The status box."""
@@ -95,17 +94,11 @@ def create_buttons():
     buttons = []
     button_column.data = {}
 
-    # create a new YAML file
-    button_column.data["create_a_new_yaml_file"] = widgets.Button()
-    button_column.data["create_a_new_yaml_file"].description = "Create a new YAML file"
-    button_column.data["create_a_new_yaml_file"].id = "create_a_new_yaml_file"
-    buttons.append(button_column.data["create_a_new_yaml_file"])
-
-    # load an existing YAML file
-    button_column.data["load_a_yaml_file"] = widgets.Button()
-    button_column.data["load_a_yaml_file"].description = "Load a YAML file"
-    button_column.data["load_a_yaml_file"].id = "load_a_yaml_file"
-    buttons.append(button_column.data["load_a_yaml_file"])
+    # load or create a new YAML file
+    button_column.data["load_create_a_yaml_file"] = widgets.Button()
+    button_column.data["load_create_a_yaml_file"].description = "Load/Create a YAML file"
+    button_column.data["load_create_a_yaml_file"].id = "load_create_a_yaml_file"
+    buttons.append(button_column.data["load_create_a_yaml_file"])
 
     # create a new credential file
     button_column.data["create_a_new_credential"] = widgets.Button()
@@ -181,8 +174,7 @@ gui.children = (gui.data["status"], gui.data["display"])
 
 # options in "display"
 gui.data["buttons"] = create_buttons()
-gui.data["create_a_new_yaml_file"] = create_a_new_yaml_file.create_a_new_yaml_file_gui()
-gui.data["load_a_yaml_file"] = load_a_yaml_file.load_a_yaml_file_gui()
+gui.data["load_create_a_yaml_file"] = load_create_a_yaml_file.create_tool_gui()
 gui.data["create_a_new_credential"] = widgets.VBox()
 gui.data["create_azure_resources"] = widgets.VBox()
 gui.data["submit_tasks_to_azure"] = widgets.VBox()
@@ -191,7 +183,7 @@ gui.data["download_cases"] = widgets.VBox()
 gui.data["delete_azure_resources"] = widgets.VBox()
 
 # the default content in "display"
-gui.data["display"].children = (gui.data["buttons"], gui.data["create_a_new_yaml_file"])
+gui.data["display"].children = (gui.data["buttons"], gui.data["load_create_a_yaml_file"])
 
 # register the callback of buttons' actions
 for button in gui.data["buttons"].children:
