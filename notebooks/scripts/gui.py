@@ -26,6 +26,7 @@ sys.path.insert(0, script_dir)
 # import common from this "scripts" folder
 import common
 import create_a_new_yaml_file
+import load_a_yaml_file
 
 def create_status_box():
     """The status box."""
@@ -181,7 +182,7 @@ gui.children = (gui.data["status"], gui.data["display"])
 # options in "display"
 gui.data["buttons"] = create_buttons()
 gui.data["create_a_new_yaml_file"] = create_a_new_yaml_file.create_a_new_yaml_file_gui()
-gui.data["load_a_yaml_file"] = widgets.VBox()
+gui.data["load_a_yaml_file"] = load_a_yaml_file.load_a_yaml_file_gui()
 gui.data["create_a_new_credential"] = widgets.VBox()
 gui.data["create_azure_resources"] = widgets.VBox()
 gui.data["submit_tasks_to_azure"] = widgets.VBox()
