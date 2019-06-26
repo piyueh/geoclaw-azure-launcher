@@ -55,6 +55,13 @@ def create_basic_setting_box():
     box.data["leak_profile"] = children["leak_profile"].children[1].children[1]
     box.data["leak_profile"].layout.padding = "1px 1px 5px 10px"
 
+    children["leak_profile"].children[1].children[1].value = 2
+    common.table_row_change({"old": 1, "new": 2}, box.data["leak_profile"])
+    box.data["leak_profile"].children[1].children[0].value = 1800
+    box.data["leak_profile"].children[1].children[1].value = 0.5
+    box.data["leak_profile"].children[2].children[0].value = 12600
+    box.data["leak_profile"].children[2].children[1].value = 0.1
+
     # basic settings: simulation time
     children["simulation_time"] = common.label_boundedinttext_pair(
         "Simulation time (minutes):", 480, 0, 999999, 1)
