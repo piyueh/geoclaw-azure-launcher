@@ -31,8 +31,7 @@ import misc_settings
 import advanced_numerical_parameters
 
 def create_a_new_yaml_file_gui():
-    """The GUI interface of the tool creating a new YAML.
-    """
+    """The GUI interface of the tool creating a new YAML."""
 
     # the largest box
     frame = widgets.VBox(
@@ -44,7 +43,7 @@ def create_a_new_yaml_file_gui():
         description="Import", layout={"padding": "2px 2px 2px 2px"})
 
     # a button to save existing YAML settings
-    save_as = widgets.Button(
+    save_as_button = widgets.Button(
         description="Save as", layout={"padding": "2px 2px 2px 2px"})
 
     # the setting section is an accordion
@@ -53,8 +52,13 @@ def create_a_new_yaml_file_gui():
             "padding": "2px 2px 2px 2px", "align_items": "stretch"})
 
     # set children of the largest box
-    frame.children = [widgets.HBox([import_button, save_as]), setting_section]
+    frame.children = [widgets.HBox([import_button, save_as_button]), setting_section]
 
+    # an easier way to access components
+    frame.data = {}
+    frame.data["import"] = import_button
+    frame.data["save_as"] = save_as_button
+    frame.data["settings"] = setting_section
 
     # =============================
     # now setup the setting_section
@@ -95,5 +99,13 @@ def create_a_new_yaml_file_gui():
     setting_section.set_title(4, "Miscellaneous")
     setting_section.set_title(5, "Advanced numerical parameters")
 
+    # an easier way to access data
+    setting_section.data = {}
+    setting_section.data["project_metadata"] = proj_meta
+    setting_section.data["basic_settings"] = basic
+    setting_section.data["fluid_settings"] = fluid
+    setting_section.data["darcy_weisbach_settings"] = darcy_weisbach
+    setting_section.data["misc_settings"] = misc
+    setting_section.data["advanced_numerical_parameters"] = advanced
 
     return frame
