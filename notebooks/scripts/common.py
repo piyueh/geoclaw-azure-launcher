@@ -30,24 +30,17 @@ def run_button():
 
     return button
 
-def run(button, big_box, true_run):
-    """Event when an user click the "Run" button.
+def on_click_wrapper(button, gui, true_event, *args, **kwargs):
+    """Event when an user click the "Run" button."""
 
-    Args:
-        button: A ipywidgets.Button object.
-        big_box: the box containing this tool
-        true_run: the true callback event function when clicking run.
-    """
-
-    # capture stdout and stderr in the Output widget
-    # assume the last children is always an ipytwidget.Output
-    with big_box.real_widgets["msg"]:
-
-        # clean the message in the output widget
-        IPython.display.clear_output()
-
-        # the real/underlying event
-        true_run(big_box)
+    if not "msg" in gui.data.keys() or gui.data["msg"] is None:
+        true_event(gui, *args, **kwargs)
+    elif isinstance(gui.data["msg"], ipywidgets.Output):
+        with gui.data["msg"]:
+            IPython.display.clear_output()
+            true_event(gui, *args, **kwargs)
+    else:
+        raise TypeError
 
 def dir_selector_event(button, text):
     """Pop up a tk window for folder selection.

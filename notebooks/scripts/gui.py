@@ -12,7 +12,7 @@ The GUI for using GeoClaw for HCA analysis purpose.
 import os
 import sys
 import functools
-import ipywidgets as widgets
+import ipywidgets
 import IPython.display
 
 # make this directory searchable for Python modules
@@ -26,12 +26,13 @@ sys.path.insert(0, script_dir)
 # import common from this "scripts" folder
 import common
 import load_create_a_yaml_file
+import load_create_a_credential_file
 
 def create_status_box():
     """The status box."""
 
     # the indicator of current project YAML file
-    proj_yaml_box = widgets.HBox(children=[widgets.Label(), widgets.Label()])
+    proj_yaml_box = ipywidgets.HBox(children=[ipywidgets.Label(), ipywidgets.Label()])
     proj_yaml_box.layout.width = "100%"
     proj_yaml_box.layout.flex = "1 1 auto"
     proj_yaml_box.layout.padding = "2px 2px 2px 2px"
@@ -49,7 +50,7 @@ def create_status_box():
 
 
     # the indicator of the credential file being used
-    cred_file_box = widgets.HBox(children=[widgets.Label(), widgets.Label()])
+    cred_file_box = ipywidgets.HBox(children=[ipywidgets.Label(), ipywidgets.Label()])
     cred_file_box.layout = {"width": "100%", "flex": "1 1 auto"}
     cred_file_box.layout.padding = "2px 2px 2px 2px"
 
@@ -65,7 +66,7 @@ def create_status_box():
     cred_file_box.children[1].add_class("centered-text")
 
     # final box
-    current_status_box = widgets.VBox([proj_yaml_box, cred_file_box])
+    current_status_box = ipywidgets.VBox([proj_yaml_box, cred_file_box])
     current_status_box.layout.flex = "1 1 auto"
     current_status_box.layout.border = "1.5px solid black"
 
@@ -85,7 +86,7 @@ def create_status_box():
 def create_buttons():
     """Create a column of buttons to change the content in the display."""
 
-    button_column = widgets.VBox()
+    button_column = ipywidgets.VBox()
     button_column.layout.width = "25%"
     button_column.layout.flex = "0 1 auto"
     button_column.layout.padding = "2px 2px 2px 2px"
@@ -95,43 +96,43 @@ def create_buttons():
     button_column.data = {}
 
     # load or create a new YAML file
-    button_column.data["load_create_a_yaml_file"] = widgets.Button()
+    button_column.data["load_create_a_yaml_file"] = ipywidgets.Button()
     button_column.data["load_create_a_yaml_file"].description = "Load/Create a YAML file"
     button_column.data["load_create_a_yaml_file"].id = "load_create_a_yaml_file"
     buttons.append(button_column.data["load_create_a_yaml_file"])
 
     # create a new credential file
-    button_column.data["create_a_new_credential"] = widgets.Button()
-    button_column.data["create_a_new_credential"].description = "Create a new credential file"
-    button_column.data["create_a_new_credential"].id = "create_a_new_credential"
-    buttons.append(button_column.data["create_a_new_credential"])
+    button_column.data["load_create_a_credential_file"] = ipywidgets.Button()
+    button_column.data["load_create_a_credential_file"].description = "Load/Create a credential file"
+    button_column.data["load_create_a_credential_file"].id = "load_create_a_credential_file"
+    buttons.append(button_column.data["load_create_a_credential_file"])
 
     # create Azure resources
-    button_column.data["create_azure_resources"] = widgets.Button()
+    button_column.data["create_azure_resources"] = ipywidgets.Button()
     button_column.data["create_azure_resources"].description = "Create Azure resources"
     button_column.data["create_azure_resources"].id = "create_azure_resources"
     buttons.append(button_column.data["create_azure_resources"])
 
     # submit jobs
-    button_column.data["submit_tasks_to_azure"] = widgets.Button()
+    button_column.data["submit_tasks_to_azure"] = ipywidgets.Button()
     button_column.data["submit_tasks_to_azure"].description = "Submit tasks to Azure"
     button_column.data["submit_tasks_to_azure"].id = "submit_tasks_to_azure"
     buttons.append(button_column.data["submit_tasks_to_azure"])
 
     # submit jobs
-    button_column.data["monitor_progress"] = widgets.Button()
+    button_column.data["monitor_progress"] = ipywidgets.Button()
     button_column.data["monitor_progress"].description = "Monitor progress"
     button_column.data["monitor_progress"].id = "monitor_progress"
     buttons.append(button_column.data["monitor_progress"])
 
     # download cases
-    button_column.data["download_cases"] = widgets.Button()
+    button_column.data["download_cases"] = ipywidgets.Button()
     button_column.data["download_cases"].description = "Download cases"
     button_column.data["download_cases"].id = "download_cases"
     buttons.append(button_column.data["download_cases"])
 
     # delete Azure resources
-    button_column.data["delete_azure_resources"] = widgets.Button()
+    button_column.data["delete_azure_resources"] = ipywidgets.Button()
     button_column.data["delete_azure_resources"].description = "Delete Azure resources"
     button_column.data["delete_azure_resources"].id = "delete_azure_resources"
     buttons.append(button_column.data["delete_azure_resources"])
@@ -150,6 +151,11 @@ def button_actions(button, gui):
 
     gui.data["display"].children = (gui.data["buttons"], gui.data[button.id])
 
+def set_credential_status(cred_box, status_box):
+    """Set the file path to status box."""
+
+    status_box.data["cred_file"].value = cred_box.data["filepath"]
+
 
 # ============
 # GUI
@@ -160,27 +166,31 @@ css = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css")
 IPython.display.display(IPython.display.HTML(open(css, 'r').read()))
 
 # the top most level of the GUI interface
-gui = widgets.VBox()
+gui = ipywidgets.VBox()
 gui.layout.flex = "1 1 auto"
 
 gui.data = {}
 gui.data["status"] = create_status_box()
-gui.data["display"] = widgets.HBox()
+gui.data["display"] = ipywidgets.HBox()
 gui.data["display"].layout.flex = "1 1 auto"
 gui.data["display"].layout.border = "1.5px solid black"
 gui.data["display"].layout.margin = "2px 2px 2px 2px"
 gui.data["display"].layout.padding = "2px 2px 2px 2px"
-gui.children = (gui.data["status"], gui.data["display"])
+gui.data["msg"] = ipywidgets.Output()
+gui.data["msg"].layout.border = "1.5px solid black"
+gui.children = (
+    gui.data["status"], gui.data["display"],
+    ipywidgets.Label("Output message:"), gui.data["msg"])
 
-# options in "display"
+# all panels in "display"
 gui.data["buttons"] = create_buttons()
 gui.data["load_create_a_yaml_file"] = load_create_a_yaml_file.create_tool_gui()
-gui.data["create_a_new_credential"] = widgets.VBox()
-gui.data["create_azure_resources"] = widgets.VBox()
-gui.data["submit_tasks_to_azure"] = widgets.VBox()
-gui.data["monitor_progress"] = widgets.VBox()
-gui.data["download_cases"] = widgets.VBox()
-gui.data["delete_azure_resources"] = widgets.VBox()
+gui.data["load_create_a_credential_file"] = load_create_a_credential_file.create_tool_gui()
+gui.data["create_azure_resources"] = ipywidgets.VBox()
+gui.data["submit_tasks_to_azure"] = ipywidgets.VBox()
+gui.data["monitor_progress"] = ipywidgets.VBox()
+gui.data["download_cases"] = ipywidgets.VBox()
+gui.data["delete_azure_resources"] = ipywidgets.VBox()
 
 # the default content in "display"
 gui.data["display"].children = (gui.data["buttons"], gui.data["load_create_a_yaml_file"])
@@ -188,6 +198,16 @@ gui.data["display"].children = (gui.data["buttons"], gui.data["load_create_a_yam
 # register the callback of buttons' actions
 for button in gui.data["buttons"].children:
     button.on_click(functools.partial(button_actions, gui=gui))
+
+# register output widget to all tools
+for key in ["load_create_a_yaml_file", "load_create_a_credential_file"]:
+    gui.data[key].data["msg"] = gui.data["msg"]
+
+# register extra callback
+gui.data["load_create_a_credential_file"].data["extracallback"] = \
+    functools.partial(
+        set_credential_status, cred_box=gui.data["load_create_a_credential_file"],
+        status_box=gui.data["status"])
 
 # show the GUI in the notebook
 IPython.display.display(gui)
