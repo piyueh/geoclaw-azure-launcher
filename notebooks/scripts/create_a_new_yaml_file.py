@@ -27,6 +27,7 @@ sys.path.insert(0, script_dir)
 import common
 import basic_settings
 import fluid_darcy_weisbach_settings
+import misc_settings
 
 def create_a_new_yaml_file_gui():
     """The GUI interface of the tool creating a new YAML.
@@ -79,7 +80,7 @@ def create_a_new_yaml_file_gui():
     darcy_weisbach = fluid_darcy_weisbach_settings.create_darcy_weisbach_setting_box()
 
     # misc
-    misc = widgets.VBox()
+    misc = misc_settings.create_misc_setting_box()
 
     # advanced numerical parameters
     advanced = widgets.VBox()
