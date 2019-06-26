@@ -212,13 +212,57 @@ just for users to manage projects.
     The absolute surface roughness, required by Darcy-Weisbach coefficient
     models. The unit is meter.
 
-## 5. `misc` node
------------------
+## 5. `misc settings` node
+--------------------------
 
-1. **skip if case exist**: a boolean
+1. **local folder**: a Python dictionary or YAML sub-node
 
-    Indicate if we should re-create a new simulation case and overwrite the old
-    one if we find the case already exists in the working dorectory.
+    In this category, there's one boolean option.
+
+    a. **force creation**: a boolean
+
+        Whether to re-create a case folder if a folder with the same name already
+        exists on the current local machine. Default is `True`.
+
+2. **submission to cloud**: a Python dictionary or YAML sub-node
+
+    In this category, there're two boolean options.
+
+    a. **skip if not found on local**: a boolean
+
+        Whether to ignore the submission of a case if the case folder can not be
+        found on the local machine. Default is `False`. By default, if a case
+        folder is missing on the local machine, an error will be raised.
+
+    b. **skip if exists on remote**: a boolean
+
+        Whether to ignore the submission of a case if the case already exists
+        on cloud computing nodes. Default is `True`. If `False`, the case will
+        be re-submitted and re-run.
+
+3. **downloading**: a Python dicitonary or YAML sub-node
+
+    There're three boolean options:
+
+    a. **sync mode**: a boolean
+
+        Whether to use synchronization mode or not when downloading. Default is
+        `True`, and it will only download the data that is newer on the cloud. 
+        With `False`, the tool will try to download everything regardless the
+        timestamps of the data files on the cloud.
+
+    b. **skip raw data**: a boolean
+
+        Whether to download GeoClaw's raw data or not. Default is `False`, and
+        this means it will only download the NetCDF files. GeoClaw's raw data
+        are only useful when we need to do more complicated post-processing.
+
+    c. **skip rasters**: a boolean
+
+        When the topographyic and hydrologic data are obtained from 3DEP and
+        NHD servers, setting this option to `True` will allow the tool to
+        also download the raster files to local machines. Default is `False`.
+        Downloading the raster files is userful for debugging purpose.
 
 ## 5. `advanced numerical parameters` node
 ------------------------------------------

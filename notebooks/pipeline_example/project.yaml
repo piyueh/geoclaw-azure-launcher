@@ -54,8 +54,16 @@ darcy-weisbach settings:
 
 # Miscellaneous
 # -------------
-misc:
-  skip if case exist: True
+misc settings:
+  local folder:
+    force creation: True
+  submision to cloud:
+    skip if not found on local: False
+    skip if exist on remote: True
+  downloading:
+    sync mode: True
+    skip raw data: True
+    skip rasters: True
 
 # Advanced parameters for numerical methods
 # -----------------------------------------
