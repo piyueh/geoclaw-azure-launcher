@@ -38,13 +38,12 @@ def create_a_new_yaml_file_gui():
         layout={"width": "69%", "flex": "1 1 auto", "border": "1px solid black",
             "padding": "2px 2px 2px 2px", "align_items": "flex-start"})
 
-    # a button to import existing YAML file for later modification
-    import_button = widgets.Button(
-        description="Import", layout={"padding": "2px 2px 2px 2px"})
-
     # a button to save existing YAML settings
     save_as_button = widgets.Button(
         description="Save as", layout={"padding": "2px 2px 2px 2px"})
+
+    save_as_button.style.button_color = "slategray"
+    save_as_button.style.font_weight = "bold"
 
     # the setting section is an accordion
     setting_section = widgets.Accordion(
@@ -52,11 +51,10 @@ def create_a_new_yaml_file_gui():
             "padding": "2px 2px 2px 2px", "align_items": "stretch"})
 
     # set children of the largest box
-    frame.children = [widgets.HBox([import_button, save_as_button]), setting_section]
+    frame.children = [save_as_button, setting_section]
 
     # an easier way to access components
     frame.data = {}
-    frame.data["import"] = import_button
     frame.data["save_as"] = save_as_button
     frame.data["settings"] = setting_section
 

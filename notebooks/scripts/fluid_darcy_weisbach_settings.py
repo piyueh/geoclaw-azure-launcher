@@ -69,7 +69,7 @@ def create_fluid_setting_box():
                     description="C2:", value=0.045, min=0., max=1e6, step=1e-3,
                     style={"description_width": "initial"})])
         ], layout={
-            "flex": "1 1 65%", "border": "0.5px solid grey",
+            "flex": "1 1 65%", "border": "0.5px solid gray",
             "padding": "1px 1px 5px 10px"})
     ])
     box.data["evaporation"] = {}

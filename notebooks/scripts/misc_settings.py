@@ -41,7 +41,7 @@ def create_misc_setting_box():
                 description="Force creation even if a folder already exists",
                 value=True, indent=False, layout={"flex": "1 1 60%"})
         ], layout={
-            "flex": "1 1 65%", "border": "0.5px solid grey",
+            "flex": "1 1 65%", "border": "0.5px solid gray",
             "padding": "1px 1px 5px 5px"})
     ], layout={"margin": "2px 2px 2px 2px"})
     box.data["local_folder"] = {}
@@ -58,7 +58,7 @@ def create_misc_setting_box():
                 description="Skip submission if a case already exists on cloud",
                 value=True, indent=False, layout={"flex": "1 1 60%"}),
         ], layout={
-            "flex": "1 1 65%", "border": "0.5px solid grey",
+            "flex": "1 1 65%", "border": "0.5px solid gray",
             "padding": "1px 1px 5px 5px"})
     ], layout={"margin": "2px 2px 2px 2px"})
     box.data["submission_to_cloud"] = {}
@@ -81,7 +81,7 @@ def create_misc_setting_box():
                 description="Skip raster files when downloading",
                 value=True, indent=False, layout={"flex": "1 1 60%"}),
         ], layout={
-            "flex": "1 1 65%", "border": "0.5px solid grey",
+            "flex": "1 1 65%", "border": "0.5px solid gray",
             "padding": "1px 1px 5px 5px"})
     ], layout={"margin": "2px 2px 2px 2px"})
     box.data["downloading"] = {}

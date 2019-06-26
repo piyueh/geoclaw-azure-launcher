@@ -162,7 +162,7 @@ def dir_or_file_selector_pair(
     else:
         raise ValueError("dir_or_file should be either \"dir\" or \"file\".")
 
-    return ipywidgets.HBox(children=[label, button, text], layout={"width": "100%"})
+    return ipywidgets.HBox(children=[label, button, text])
 
 def label_boundedinttext_pair(label_text, default_value, minimum, maximum, step):
     """A helper to create a HBox with a Label and a BoundedIntText widgets.
@@ -569,7 +569,7 @@ def table_input(row_title, col_titles, col_types, col_params=None):
         ipywidgets.HBox(temp[0], layout={"flex": "1 1 auto"}),
         ipywidgets.HBox(temp[1], layout={"flex": "1 1 auto"})]))
 
-    children[-1].layout.border = "0.5px solid grey"
+    children[-1].layout.border = "0.5px solid gray"
     children[-1].layout.padding = "1px 1px 1px 1px"
 
     # register callback
