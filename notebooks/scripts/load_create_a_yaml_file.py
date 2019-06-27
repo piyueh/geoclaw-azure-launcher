@@ -199,10 +199,13 @@ def load_event(gui):
     with open(gui.data["filepath"], "r") as f:
         gui.data["yaml"] = yaml.load(f, Loader=yaml.SafeLoader)
 
-    # update information in GUI with the YAML data
-    translate_yaml_to_gui(gui.data["filepath"], gui.data["yaml"], gui.data["create"])
+    # update possible relative paths to absolute paths
+    gui.data["yaml"] = common.convert_to_abspath(gui.data["filepath"], gui.data["yaml"])
 
-def translate_yaml_to_gui(yamlpath, yamldata, gui):
+    # update information in GUI with the YAML data
+    translate_yaml_to_gui(gui.data["yaml"], gui.data["create"])
+
+def translate_yaml_to_gui(yamldata, gui):
     """Translate YAML dict to GUI."""
 
     # meta data
@@ -214,8 +217,8 @@ def translate_yaml_to_gui(yamlpath, yamldata, gui):
     # basic settings
     cgui = gui.data["basic_settings"].data
     cyaml = yamldata["basic settings"]
-    cgui["wd"].value = common.relative_to_a_file(yamlpath, cyaml["working directory"])
-    cgui["rupture_points"].value = common.relative_to_a_file(yamlpath, cyaml["rupture points"])
+    cgui["wd"].value = cyaml["working directory"]
+    cgui["rupture_points"].value = cyaml["rupture points"]
     cgui["n_leak_profile"].value = len(cyaml["leak profile"])
     for i, data in enumerate(cyaml["leak profile"]):
         cgui["leak_profile"].children[i+1].children[0].value = data["end time"]
@@ -227,8 +230,7 @@ def translate_yaml_to_gui(yamlpath, yamldata, gui):
         cgui["topography_provider"].value = cyaml["topography file"]
     else:
         cgui["topography_provider"].value = "local file"
-        cgui["topography_selector"].value = \
-            common.relative_to_a_file(yamlpath, cyaml["topography file"])
+        cgui["topography_selector"].value = cyaml["topography file"]
 
     if cyaml["hydrologic files"] == "from NHD server":
         cgui["hydrologic_provider"].value = cyaml["hydrologic files"]
@@ -236,7 +238,7 @@ def translate_yaml_to_gui(yamlpath, yamldata, gui):
         cgui["hydrologic_provider"].value = "local files"
         temp = ""
         for i in cyaml["hydrologic files"]:
-            temp += ";{}".format(common.relative_to_a_file(yamlpath, i))
+            temp += ";{}".format(i)
         cgui["hydrologic_selector"].value = temp.lstrip(";")
 
     if cyaml["use topo res as grid res"]:

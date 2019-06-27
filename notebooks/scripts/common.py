@@ -31,7 +31,7 @@ def on_click_wrapper(button, gui, true_event, *args, **kwargs):
         raise TypeError
 
     # extra call back function
-    if gui.data["extracallback"] is not None:
+    if "extracallback" in gui.data.keys() and gui.data["extracallback"] is not None:
         gui.data["extracallback"]()
 
 def dir_selector_event(button, text):
@@ -263,7 +263,11 @@ def get_point_info(workdir, shapefilepath):
 
         dirname = os.path.join(workdir, casename)
 
-        data.append({"xy": xy, "casename": casename, "dirname": dirname})
+        status = os.path.isdir(dirname)
+
+        data.append({
+            "Coordinates": xy, "Case ID": casename,
+            "Path": dirname, "Folder exist": status})
 
     shapefile.close()
 
@@ -283,10 +287,10 @@ def obtain_common_yaml_settings(yamldata):
     params = {}
 
     params["extent"] = [
-        yamldata["basic settings"]["computational domain"]["top"],
-        yamldata["basic settings"]["computational domain"]["bottom"],
-        yamldata["basic settings"]["computational domain"]["left"],
-        yamldata["basic settings"]["computational domain"]["right"]]
+        yamldata["basic settings"]["relative computational domain"]["top"],
+        yamldata["basic settings"]["relative computational domain"]["bottom"],
+        yamldata["basic settings"]["relative computational domain"]["left"],
+        yamldata["basic settings"]["relative computational domain"]["right"]]
 
     params["end_time"] = yamldata["basic settings"]["simulation time"]
     params["output_time"] = yamldata["basic settings"]["output time spacing"]
@@ -304,7 +308,8 @@ def obtain_common_yaml_settings(yamldata):
         (len(yamldata["basic settings"]["leak profile"]), 2), dtype=numpy.float)
 
     params["evap_type"] = yamldata["fluid settings"]["evaporation model"]["model"]
-    params["evap_coeffs"] = yamldata["fluid settings"]["coefficients"]
+    params["evap_coeffs"] = numpy.array(
+        yamldata["fluid settings"]["evaporation model"]["coefficients"])
 
     for i, stage in enumerate(yamldata["basic settings"]["leak profile"]):
         params["leak_profile"][i, 0] = stage["end time"]
@@ -389,89 +394,29 @@ def check_helpers_path():
 
     sys.path.insert(0, root)
 
-def prepare_geoclaw_cases(yamlpath, recreate):
-    """Parse a project YAML file.
-
-    Args:
-        yamlpath: a string of the path to the YAML file.
-        recreate: whether to delete and re-create a case folder if it exists.
-    """
-    import shutil
-    import yaml
-    import rasterio
-
-    # import helper module using relative path to this file
-    check_helpers_path()
-    import helpers.arcgistools
-
-    # read project YAML file
-    with open(yamlpath, 'r') as f:
-        raw_data = yaml.load(f, Loader=yaml.SafeLoader)
+def convert_to_abspath(yamlpath, yamldata):
+    """Convert paths in a YAML data to absolute path."""
 
     # working directory
-    raw_data["basic settings"]["working directory"] = relative_to_a_file(
-        yamlpath, raw_data["basic settings"]["working directory"]),
+    yamldata["basic settings"]["working directory"] = relative_to_a_file(
+        yamlpath, yamldata["basic settings"]["working directory"])
 
-    # obtain the xy coordinates and other point information from the shapefile
-    pointdata = get_point_info(
-        raw_data["basic settings"]["working directory"],
-        relative_to_a_file(yamlpath, raw_data["basic settings"]["rupture points"]))
+    # rupture pointa
+    yamldata["basic settings"]["rupture points"] = relative_to_a_file(
+        yamlpath, yamldata["basic settings"]["rupture points"])
 
-    # obtain common settings
-    params = obtain_common_yaml_settings(raw_data)
-
-    # open the local topography if it exists
-    if raw_data["basic settings"]["topography file"] != "from 3DEP server":
-        toporaster = rasterio.open(relative_to_a_file(
-            yamlpath, raw_data["basic settings"]["topography file"]), 'r')
+    # local topo raster
+    if yamldata["basic settings"]["topography file"] != "from 3DEP server":
+        yamldata["basic settings"]["topography file"] = relative_to_a_file(
+            yamlpath, yamldata["basic settings"]["topography file"])
 
     # hydrological data
-    if raw_data["basic settings"]["hydrologic files"] != "from NHD server":
-        hydrorasters = []
-        for raster in raw_data["basic settings"]["hydrologic files"]:
-            hydrorasters.append(
-                rasterio.open(relative_to_a_file(yamlpath, raster), 'r'))
+    if yamldata["basic settings"]["hydrologic files"] != "from NHD server":
+        for i, path in enumerate(yamldata["basic settings"]["hydrologic files"]):
+            yamldata["basic settings"]["hydrologic files"][i] = \
+                relative_to_a_file(yamlpath, path)
 
-    # loop through each point and create its case folder and setrun.py
-    for point in pointdata:
-
-        # setup the case folder path and create the folder
-        params["out_dir"] = point["dirname"]
-
-        if os.path.isdir(params["out_dir"]) and recreate:
-            shutil.rmtree(params["out_dir"])
-
-        os.makedirs(params["out_dir"], exist_ok=True)
-
-        # copy the coordinates
-        params["point"] = point["xy"]
-
-        # create topography file if not downloading from 3DEP
-        if raw_data["basic settings"]["topography file"] != "from 3DEP server":
-            crop_raster(
-                os.path.join(params["out_dir"], "topo.asc"),
-                toporaster, point["xy"], params["extent"], recreate)
-
-        # create topography file if not downloading from 3DEP
-        if raw_data["basic settings"]["hydrologic files"] != "from NHD server":
-            for i, raster in enumerate(hydrorasters):
-                crop_raster(
-                    os.path.join(params["out_dir"], "hydro_{}.asc".format(i)),
-                    raster, point["xy"], params["extent"], recreate)
-
-        # create setrun.py in the case folder
-        helpers.arcgistools.write_setrun(**params)
-
-    # close topography raster
-    if raw_data["basic settings"]["topography file"] != "from 3DEP server":
-        toporaster.close()
-
-    # close hydrological rasters
-    if raw_data["basic settings"]["hydrologic files"] != "from NHD server":
-        for raster in hydrorasters:
-            raster.close()
-
-    return raw_data, pointdata
+    return yamldata
 
 def create_and_submit(yamldata, points, userparams):
     """Create Azure resources and submit simulation cases.

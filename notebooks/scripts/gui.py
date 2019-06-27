@@ -12,6 +12,7 @@ The GUI for using GeoClaw for HCA analysis purpose.
 import os
 import sys
 import functools
+import collections
 import ipywidgets
 import IPython.display
 
@@ -27,122 +28,77 @@ sys.path.insert(0, script_dir)
 import common
 import load_create_a_yaml_file
 import load_create_a_credential_file
+import create_geoclaw_cases
 
 def create_status_box():
     """The status box."""
 
-    # the indicator of current project YAML file
-    proj_yaml_box = ipywidgets.HBox(children=[ipywidgets.Label(), ipywidgets.Label()])
-    proj_yaml_box.layout.width = "100%"
-    proj_yaml_box.layout.flex = "1 1 auto"
-    proj_yaml_box.layout.padding = "2px 2px 2px 2px"
+    # box
+    status_box = ipywidgets.VBox()
+    status_box.layout.flex = "1 1 auto"
+    status_box.layout.border = "1.5px solid black"
+    status_box.layout.padding = "2px 2px 2px 2px"
+    status_box.layout.margin = "2px 2px 2px 2px"
 
-    # legend lable
-    proj_yaml_box.children[0].value = "Current project setting:"
-    proj_yaml_box.children[0].layout.width = "35"
-    proj_yaml_box.children[0].add_class("bold-face")
+    status_box.data = collections.OrderedDict()
+    metadata = collections.OrderedDict([
+        ("proj_yaml", "Current project setting:"),
+        ("cred_file", "Current Azure credential file:")])
 
-    # content
-    proj_yaml_box.children[1].value = "None"
-    proj_yaml_box.children[1].layout.flex = "1 1 auto"
-    proj_yaml_box.children[1].layout.border = "1px solid black"
-    proj_yaml_box.children[1].add_class("centered-text")
+    for k, v in metadata.items():
+        status_box.data[k] = ipywidgets.HBox(
+            children=[ipywidgets.Label(), ipywidgets.Label()])
+        status_box.data[k].layout.width = "100%"
+        status_box.data[k].layout.flex = "1 1 auto"
+        status_box.data[k].layout.padding = "2px 2px 2px 2px"
 
+        # legend lable
+        status_box.data[k].children[0].value = v
+        status_box.data[k].children[0].layout.width = "35"
+        status_box.data[k].children[0].add_class("bold-face")
 
-    # the indicator of the credential file being used
-    cred_file_box = ipywidgets.HBox(children=[ipywidgets.Label(), ipywidgets.Label()])
-    cred_file_box.layout = {"width": "100%", "flex": "1 1 auto"}
-    cred_file_box.layout.padding = "2px 2px 2px 2px"
+        # content
+        status_box.data[k].children[1].value = "None"
+        status_box.data[k].children[1].layout.flex = "1 1 auto"
+        status_box.data[k].children[1].layout.border = "1px solid black"
+        status_box.data[k].children[1].add_class("centered-text")
 
-    # legend lable
-    cred_file_box.children[0].value = "Current Azure credential file:"
-    cred_file_box.children[0].layout.width = "35"
-    cred_file_box.children[0].add_class("bold-face")
+    # setup children
+    status_box.children = tuple(status_box.data.values())
 
-    # content
-    cred_file_box.children[1].value = "None"
-    cred_file_box.children[1].layout.flex = "1 1 auto"
-    cred_file_box.children[1].layout.border = "1px solid black"
-    cred_file_box.children[1].add_class("centered-text")
+    # re-link the key to the real widget
+    for k, v in metadata.items():
+        status_box.data[k] = status_box.data[k].children[1]
 
-    # final box
-    current_status_box = ipywidgets.VBox([proj_yaml_box, cred_file_box])
-    current_status_box.layout.flex = "1 1 auto"
-    current_status_box.layout.border = "1.5px solid black"
-
-    # add direct access to status display widgets
-    current_status_box.current_yaml = proj_yaml_box.children[1]
-    current_status_box.current_cred = cred_file_box.children[1]
-    current_status_box.layout.padding = "2px 2px 2px 2px"
-    current_status_box.layout.margin = "2px 2px 2px 2px"
-
-    # easy access
-    current_status_box.data = {
-        "proj_yaml": proj_yaml_box.children[1],
-        "cred_file": cred_file_box.children[1]}
-
-    return current_status_box
+    return status_box
 
 def create_buttons():
     """Create a column of buttons to change the content in the display."""
 
     button_column = ipywidgets.VBox()
     button_column.layout.width = "25%"
-    button_column.layout.flex = "0 1 auto"
+    button_column.layout.flex = "0 0 auto"
     button_column.layout.padding = "2px 2px 2px 2px"
     button_column.layout.align_items = "center"
 
-    buttons = []
-    button_column.data = {}
+    button_column.data = collections.OrderedDict()
+    metadata = collections.OrderedDict([
+        ("load_create_a_yaml_file", "Load/Create a YAML file"),
+        ("load_create_a_credential_file", "Load/Create a credential file"),
+        ("create_geoclaw_cases", "Create GeoClaw cases"),
+        ("create_azure_resources", "Create Azure resources"),
+        ("submit_tasks_to_azure", "Submit tasks to Azure"),
+        ("monitor_progress", "Monitor progress"),
+        ("download_cases", "Download cases"),
+        ("delete_azure_resources", "Delete Azure resources")])
 
-    # load or create a new YAML file
-    button_column.data["load_create_a_yaml_file"] = ipywidgets.Button()
-    button_column.data["load_create_a_yaml_file"].description = "Load/Create a YAML file"
-    button_column.data["load_create_a_yaml_file"].id = "load_create_a_yaml_file"
-    buttons.append(button_column.data["load_create_a_yaml_file"])
+    for k, v in metadata.items():
+        button_column.data[k] = ipywidgets.Button()
+        button_column.data[k].description = v
+        button_column.data[k].id = k
+        button_column.data[k].layout.width = "95%"
 
-    # create a new credential file
-    button_column.data["load_create_a_credential_file"] = ipywidgets.Button()
-    button_column.data["load_create_a_credential_file"].description = "Load/Create a credential file"
-    button_column.data["load_create_a_credential_file"].id = "load_create_a_credential_file"
-    buttons.append(button_column.data["load_create_a_credential_file"])
-
-    # create Azure resources
-    button_column.data["create_azure_resources"] = ipywidgets.Button()
-    button_column.data["create_azure_resources"].description = "Create Azure resources"
-    button_column.data["create_azure_resources"].id = "create_azure_resources"
-    buttons.append(button_column.data["create_azure_resources"])
-
-    # submit jobs
-    button_column.data["submit_tasks_to_azure"] = ipywidgets.Button()
-    button_column.data["submit_tasks_to_azure"].description = "Submit tasks to Azure"
-    button_column.data["submit_tasks_to_azure"].id = "submit_tasks_to_azure"
-    buttons.append(button_column.data["submit_tasks_to_azure"])
-
-    # submit jobs
-    button_column.data["monitor_progress"] = ipywidgets.Button()
-    button_column.data["monitor_progress"].description = "Monitor progress"
-    button_column.data["monitor_progress"].id = "monitor_progress"
-    buttons.append(button_column.data["monitor_progress"])
-
-    # download cases
-    button_column.data["download_cases"] = ipywidgets.Button()
-    button_column.data["download_cases"].description = "Download cases"
-    button_column.data["download_cases"].id = "download_cases"
-    buttons.append(button_column.data["download_cases"])
-
-    # delete Azure resources
-    button_column.data["delete_azure_resources"] = ipywidgets.Button()
-    button_column.data["delete_azure_resources"].description = "Delete Azure resources"
-    button_column.data["delete_azure_resources"].id = "delete_azure_resources"
-    buttons.append(button_column.data["delete_azure_resources"])
-
-    # add buttons to the column box
-    button_column.children = buttons
-
-    # change the width of all buttons
-    for child in button_column.children:
-        child.layout.width = "95%"
+    button_column.children = tuple(button_column.data.values())
 
     return button_column
 
@@ -191,6 +147,8 @@ gui.children = (
 gui.data["buttons"] = create_buttons()
 gui.data["load_create_a_yaml_file"] = load_create_a_yaml_file.create_tool_gui()
 gui.data["load_create_a_credential_file"] = load_create_a_credential_file.create_tool_gui()
+gui.data["create_geoclaw_cases"] = \
+    create_geoclaw_cases.create_tool_gui(gui.data["load_create_a_yaml_file"])
 gui.data["create_azure_resources"] = ipywidgets.VBox()
 gui.data["submit_tasks_to_azure"] = ipywidgets.VBox()
 gui.data["monitor_progress"] = ipywidgets.VBox()
@@ -205,7 +163,7 @@ for button in gui.data["buttons"].children:
     button.on_click(functools.partial(button_actions, gui=gui))
 
 # register output widget to all tools
-for key in ["load_create_a_yaml_file", "load_create_a_credential_file"]:
+for key in ["load_create_a_yaml_file", "load_create_a_credential_file", "create_geoclaw_cases"]:
     gui.data[key].data["msg"] = gui.data["msg"]
 
 # register extra callback
