@@ -13,7 +13,7 @@ project metadata:
 # ----------------
 basic settings:
   working directory: "./"
-  rupture points: "./none.shp"
+  rupture points: "./shapefile/OSPointM_SLC.shp"
   leak profile:
     - end time: 1800
       rate: 0.5

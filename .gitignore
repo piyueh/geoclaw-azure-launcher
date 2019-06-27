@@ -11,3 +11,8 @@
 **/stdout.txt
 **/stderr.txt
 test_cases/cred.dat
+**/azure_cred.bin
+notebooks/pipeline_example/LID4.0_RID11.0_PID0000000000000011_0003944/
+notebooks/pipeline_example/LID4.0_RID11.0_PID0000000000000011_0003948/
+notebooks/pipeline_example/LID4.0_RID11.0_PID0000000000000011_0003952/
+notebooks/pipeline_example/LID4.0_RID11.0_PID0000000000000011_0003957/
