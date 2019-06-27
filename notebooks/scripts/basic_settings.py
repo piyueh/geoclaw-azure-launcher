@@ -52,11 +52,11 @@ def create_basic_setting_box():
         [widgets.BoundedIntText, widgets.BoundedFloatText],
         [{"value": 1, "min": 1, "max": 999999, "step": 1},
          {"value": 0, "min": 0, "max": 999999, "step": 0.01}])
+    box.data["n_leak_profile"] = children["leak_profile"].children[1].children[0].children[1]
     box.data["leak_profile"] = children["leak_profile"].children[1].children[1]
     box.data["leak_profile"].layout.padding = "1px 1px 5px 10px"
 
-    children["leak_profile"].children[1].children[1].value = 2
-    common.table_row_change({"old": 1, "new": 2}, box.data["leak_profile"])
+    box.data["n_leak_profile"].value = 2
     box.data["leak_profile"].children[1].children[0].value = 1800
     box.data["leak_profile"].children[1].children[1].value = 0.5
     box.data["leak_profile"].children[2].children[0].value = 12600
@@ -120,8 +120,8 @@ def create_basic_setting_box():
             description="y:", value=1.0, min=1e-6, max=1e6, step=0.01,
             style={"description_width": "initial"}, layout={"flex": "1 1 25%"})])
     box.data["finest_grid_resolutions"] = {}
-    box.data["finest_grid_resolutions"]["x"] = children["finest_grid_resolutions"].children[1].value
-    box.data["finest_grid_resolutions"]["y"] = children["finest_grid_resolutions"].children[2].value
+    box.data["finest_grid_resolutions"]["x"] = children["finest_grid_resolutions"].children[1]
+    box.data["finest_grid_resolutions"]["y"] = children["finest_grid_resolutions"].children[2]
 
     # basic settings: relative computational domain
     children["relative_computational_domain"] = widgets.HBox([

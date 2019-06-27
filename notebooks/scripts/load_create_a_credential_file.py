@@ -165,8 +165,6 @@ def create_tool_gui():
 
 def load_event(gui):
     """Real callback after clicking "Save as"."""
-    import tkinter
-    import tkinter.filedialog
 
     # tricky part: import helper module using relative path to this file
     root = os.path.dirname(os.path.dirname(script_dir))
@@ -196,10 +194,6 @@ def load_event(gui):
 
     # clear passcode input
     widgets["passcode"].value = ""
-
-    # extra call back function
-    if gui.data["extracallback"] is not None:
-        gui.data["extracallback"]()
 
     # message
     print("Done loading credential file.")
@@ -256,10 +250,6 @@ def save_as_event(gui):
     # save opened credential to gui
     gui.data["credential"] = UC
     gui.data["filepath"] = filepath
-
-    # extra call back function
-    if gui.data["extracallback"] is not None:
-        gui.data["extracallback"]()
 
 def check_passcode(passcode1, passcode2):
     """Check passcodes."""

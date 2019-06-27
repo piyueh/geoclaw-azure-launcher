@@ -156,6 +156,11 @@ def set_credential_status(cred_box, status_box):
 
     status_box.data["cred_file"].value = cred_box.data["filepath"]
 
+def set_yaml_status(yaml_box, status_box):
+    """Set the file path to status box."""
+
+    status_box.data["proj_yaml"].value = yaml_box.data["filepath"]
+
 
 # ============
 # GUI
@@ -204,6 +209,11 @@ for key in ["load_create_a_yaml_file", "load_create_a_credential_file"]:
     gui.data[key].data["msg"] = gui.data["msg"]
 
 # register extra callback
+gui.data["load_create_a_yaml_file"].data["extracallback"] = \
+    functools.partial(
+        set_yaml_status, yaml_box=gui.data["load_create_a_yaml_file"],
+        status_box=gui.data["status"])
+
 gui.data["load_create_a_credential_file"].data["extracallback"] = \
     functools.partial(
         set_credential_status, cred_box=gui.data["load_create_a_credential_file"],

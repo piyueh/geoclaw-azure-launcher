@@ -18,18 +18,6 @@ import ipywidgets
 import IPython.display
 
 
-def run_button():
-    """A button to run the tool.
-    """
-
-    button = ipywidgets.Button(
-        value="", description="Run", disable=False, button_style="",
-        tooltip="Execute the tool", layout={"width": "30%"})
-
-    button.style.font_weight = "bold"
-
-    return button
-
 def on_click_wrapper(button, gui, true_event, *args, **kwargs):
     """Event when an user click the "Run" button."""
 
@@ -41,6 +29,10 @@ def on_click_wrapper(button, gui, true_event, *args, **kwargs):
             true_event(gui, *args, **kwargs)
     else:
         raise TypeError
+
+    # extra call back function
+    if gui.data["extracallback"] is not None:
+        gui.data["extracallback"]()
 
 def dir_selector_event(button, text):
     """Pop up a tk window for folder selection.
