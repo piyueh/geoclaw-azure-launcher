@@ -10,11 +10,11 @@
 Prepare hydrological feature rasters.
 """
 import os
-import arcpy
 
 
 def prepare_single_point_hydros(in_feats, point, extent, res, out_dir, ignore=False):
     """Prepare hydro feature rasters for a single point."""
+    import arcpy
 
     if not os.path.isdir(out_dir):
         raise FileNotFoundError("{} does not exist.".format(out_dir))

@@ -12,7 +12,6 @@ Create folders for each rupture point.
 import os
 import shutil
 import numpy
-import arcpy
 
 
 def create_single_folder(workdir, xy, ignore=True):

@@ -10,7 +10,6 @@
 Prepare topagraphy files for each rupture points by clipping base topo.
 """
 import os
-import arcpy
 import numpy
 
 def prepare_topos(base, points, extent, out_dirs, ignore=False):
@@ -26,6 +25,7 @@ def prepare_topos(base, points, extent, out_dirs, ignore=False):
 
 def prepare_single_topo(base, point, extent, out_dir, ignore=False):
     """Prepare the topo file for a rupture point by clipping base topo."""
+    import arcpy
 
     top = point[1] + extent[0] + 10
     bottom = point[1] - extent[1] - 10
