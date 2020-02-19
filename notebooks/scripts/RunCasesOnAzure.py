@@ -66,8 +66,8 @@ def credential_provider_box():
             "storage_name": manual_input_box.children[3].children[1],
             "storage_key": manual_input_box.children[4].children[1]},
         "file": {
-            "filepath_button": encrypted_file_box.children[0].children[1],
-            "filepath_text": encrypted_file_box.children[0].children[2],
+            "filepath": encrypted_file_box.children[0].children[1],
+            "filepath": encrypted_file_box.children[0].children[2],
             "passcode": encrypted_file_box.children[1].children[1]}}
 
     credential_option_change_event({"new": "Encrypted file"}, accordion)
@@ -107,10 +107,15 @@ def display_gui():
         layout={"width": "90%", "flex": "1 1 auto", "align-self": "left"},
         description="Re-create a case if it already exists local machine.")
 
-    ignore_exist_azure_chk_box = ipywidgets.Checkbox(
+    ignore_azure_exist_chk_box = ipywidgets.Checkbox(
         value=True, indent=False,
         layout={"width": "90%", "flex": "1 1 auto", "align-self": "left"},
         description="Do not re-submit a case if it already exists on Azure.")
+
+    ignore_local_nonexist_chk_box = ipywidgets.Checkbox(
+        value=True, indent=False,
+        layout={"width": "90%", "flex": "1 1 auto", "align-self": "left"},
+        description="Skip submitting a case if it cannot be found locally.")
 
     run_button = ipywidgets.Button(
         value="", description="Run", disable=False, button_style="",
@@ -124,8 +129,9 @@ def display_gui():
     # the big box
     box = ipywidgets.VBox(
         children=[yaml_selector_box, max_vm_nodes_box, node_type_box,
-                  credential_option_box, ignore_exist_azure_chk_box,
-                  recreate_local_case_chk_box, run_button, msg],
+                  credential_option_box, ignore_azure_exist_chk_box,
+                  ignore_local_nonexist_chk_box, recreate_local_case_chk_box,
+                  run_button, msg],
         layout={"width": "100%", "flex": "1 1 auto"})
 
     # references to real widgets that hold data
@@ -136,7 +142,8 @@ def display_gui():
         "cred_type": credential_option_box.children[0].children[1],
         "cred": credential_option_box.children[1].real_widgets,
         "recreate_local_case": recreate_local_case_chk_box,
-        "ignore_exist_azure": ignore_exist_azure_chk_box,
+        "ignore_azure_exist": ignore_azure_exist_chk_box,
+        "ignore_local_nonexist": ignore_local_nonexist_chk_box,
         "msg": msg
     }
 
@@ -167,11 +174,11 @@ def credential_option_change_event(changes, accordion):
             widget.placeholder = widget.placeholder_backup
 
         # file selector Box
-        widgets["file"]["filepath_button"].disabled = True
-        widgets["file"]["filepath_text"].disabled = True
-        widgets["file"]["filepath_text"].placeholder = \
+        widgets["file"]["filepath"].disabled = True
+        widgets["file"]["filepath"].disabled = True
+        widgets["file"]["filepath"].placeholder = \
             "Only available when choosing \"Encrypted file\""
-        widgets["file"]["filepath_text"].value = ""
+        widgets["file"]["filepath"].value = ""
         widgets["file"]["passcode"].disabled = True
         widgets["file"]["passcode"].value = ""
         widgets["file"]["passcode"].placeholder = \
@@ -190,11 +197,11 @@ def credential_option_change_event(changes, accordion):
             widget.placeholder = "Only available when choosing \"Manual input\""
 
         # file selector Box
-        widgets["file"]["filepath_button"].disabled = False
-        widgets["file"]["filepath_text"].disabled = False
-        widgets["file"]["filepath_text"].placeholder = \
-            widgets["file"]["filepath_text"].placeholder_backup
-        widgets["file"]["filepath_text"].value = ""
+        widgets["file"]["filepath"].disabled = False
+        widgets["file"]["filepath"].disabled = False
+        widgets["file"]["filepath"].placeholder = \
+            widgets["file"]["filepath"].placeholder_backup
+        widgets["file"]["filepath"].value = ""
         widgets["file"]["passcode"].disabled = False
         widgets["file"]["passcode"].value = ""
         widgets["file"]["passcode"].placeholder = \
@@ -209,5 +216,26 @@ def run_real(big_box):
 
     widgets = big_box.real_widgets
 
-    common.prepare_geoclaw_cases(
-        widgets["yaml_path"].value, widgets["recreate_local_case"].value)
+    widgetvalues = {
+        "yaml_path": widgets["yaml_path"].value,
+        "max_nodes": widgets["max_nodes"].value,
+        "node_type": widgets["node_type"].value,
+        "cred_type": widgets["cred_type"].value,
+        "cred": {
+            "manual": {
+                "batch_name": widgets["cred"]["manual"]["batch_name"].value,
+                "batch_key": widgets["cred"]["manual"]["batch_key"].value,
+                "batch_url": widgets["cred"]["manual"]["batch_url"].value,
+                "storage_name": widgets["cred"]["manual"]["storage_name"].value,
+                "storage_key": widgets["cred"]["manual"]["storage_key"].value},
+            "file": {
+                "filepath": widgets["cred"]["file"]["filepath"].value,
+                "passcode": widgets["cred"]["file"]["passcode"].value}},
+        "recreate_local_case": widgets["recreate_local_case"].value,
+        "ignore_azure_exist": widgets["ignore_azure_exist"].value,
+        "ignore_local_nonexist": widgets["ignore_local_nonexist"].value}
+
+    yamldata, pointinfo = common.prepare_geoclaw_cases(
+        widgetvalues["yaml_path"], widgetvalues["recreate_local_case"])
+
+    common.create_and_submit(yamldata, pointinfo, widgetvalues)

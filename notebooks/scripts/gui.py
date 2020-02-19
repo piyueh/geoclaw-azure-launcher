@@ -29,6 +29,7 @@ import common
 import load_create_a_yaml_file
 import load_create_a_credential_file
 import create_geoclaw_cases
+import create_azure_resources
 
 def create_status_box():
     """The status box."""
@@ -149,7 +150,8 @@ gui.data["load_create_a_yaml_file"] = load_create_a_yaml_file.create_tool_gui()
 gui.data["load_create_a_credential_file"] = load_create_a_credential_file.create_tool_gui()
 gui.data["create_geoclaw_cases"] = \
     create_geoclaw_cases.create_tool_gui(gui.data["load_create_a_yaml_file"])
-gui.data["create_azure_resources"] = ipywidgets.VBox()
+gui.data["create_azure_resources"] = \
+    create_azure_resources.create_tool_gui(gui.data["load_create_a_yaml_file"])
 gui.data["submit_tasks_to_azure"] = ipywidgets.VBox()
 gui.data["monitor_progress"] = ipywidgets.VBox()
 gui.data["download_cases"] = ipywidgets.VBox()

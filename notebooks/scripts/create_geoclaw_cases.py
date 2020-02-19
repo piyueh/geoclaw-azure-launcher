@@ -7,7 +7,7 @@
 # Distributed under terms of the MIT license.
 
 """
-Create an Azure credential file.
+Create GeoClaw cases on a local machine.
 """
 import os
 import sys

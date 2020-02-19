@@ -22,19 +22,19 @@
 }
 
 .widget-text input[type="password"] {
-    box-sizing: border-box;
-    border: 1px solid #9E9E9E;
-    background-color: white;
-    color: rgba(0, 0, 0, .8);
-    font-size: 13px;
-    padding: 4px 8px;
-    -webkit-box-flex: 1;
+    /*box-sizing: border-box;*/
+    /*border: 1px solid #9E9E9E;*/
+    /*background-color: white;*/
+    /*color: rgba(0, 0, 0, .8);*/
+    /*font-size: 13px;*/
+    /*padding: 4px 8px;*/
+    /*-webkit-box-flex: 1;*/
     flex-grow: 1;
-    min-width: 0;
-    flex-shrink: 1;
-    outline: none;
-    height: 28px;
-    line-height: 28px;
+    /*min-width: 0;*/
+    /*flex-shrink: 1;*/
+    /*outline: none;*/
+    /*height: 28px;*/
+    /*line-height: 28px;*/
 }
 
 @font-face {
